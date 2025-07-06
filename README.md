@@ -1,6 +1,6 @@
 # custom-keyboard
 
-Resources to build a Ferris Sweep keyboard and customize it a bit
+Resources to build a Ferris Sweep keyboard and customize it
 
 ![Assembled Ferris Sweep keyboard](ferris_sweep.jpg)
 
@@ -35,16 +35,19 @@ At the example of flashing a Colemak DH-based layout onto the Ferris Sweep:
 1. Prepare environment
     1. Install qmk, for example: `yay qmk`
     2. Run setup: `qmk setup`
-2. Compile keymap layout
-    1. Upload [ferris_sweep_colemak_dh.json](ferris_sweep_colemak_dh.json) to https://config.qmk.fm/#/ferris/sweep/LAYOUT_split_3x5_2
-    2. Click compile and download the hex-file
-    3. Move file to expected location: `mv ferris_sweep_colemak_dh.hex ~/qmk_firmware/keyboards/ferris/keymaps/colemak_dh`
+2. Compile keymap layout with `./scripts/compile.sh`
 3. Flash compiled firmware onto keyboard
     1. Connect 1 half of the keyboard to the PC (remove all other cables)
     2. Enter bootloader mode with the reset button (can also use some wire/paper clip to do this)
-    3. Flash firmware: `qmk flash -kb ferris/sweep ferris_sweep_colemak_dh.hex`
+    3. Flash firmware: `./scripts/flash.sh`
     4. Repeat steps for the other half of the keyboard
 4. Finished. You can now connect all cables of the keyboard and it should work
+
+
+## Keymap Layout
+
+This layout is based on Colemak DH and assumes the OS is configured to use the "US International" layout.
+![Colemak DH-based layout with 2 side layers and 3 extra layers](layout_colemak_dh.png)
 
 
 ## Useful links
@@ -55,4 +58,3 @@ At the example of flashing a Colemak DH-based layout onto the Ferris Sweep:
   - blog post: https://franknoirot.co/posts/ferris-sweep-keyboard-layout/
   - repo: https://github.com/franknoirot/kit/
 - QMK tutorial: https://docs.qmk.fm/newbs_getting_started
-
