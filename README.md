@@ -42,7 +42,7 @@ At the example of flashing a Colemak DH-based layout onto the Ferris Sweep:
 3. Flash compiled firmware onto keyboard
     1. Connect 1 half of the keyboard to the PC (remove all other cables)
     2. Enter bootloader mode with the reset button (can also use some wire/paper clip to do this)
-    3. Flash firmware: `qmk flash -kb ferris/sweep --filename ferris_sweep_colemak_dh.hex`
+    3. Flash firmware: `qmk flash -kb ferris/sweep ferris_sweep_colemak_dh.hex`
     4. Repeat steps for the other half of the keyboard
 4. Finished. You can now connect all cables of the keyboard and it should work
 
@@ -53,6 +53,6 @@ At the example of flashing a Colemak DH-based layout onto the Ferris Sweep:
 - test keys: https://config.qmk.fm/#/test/
 - Colemak DH layout for Ferris Sweep
   - blog post: https://franknoirot.co/posts/ferris-sweep-keyboard-layout/
-  - repo: https://github.com/franknoirot/
+  - repo: https://github.com/franknoirot/kit/
 - QMK tutorial: https://docs.qmk.fm/newbs_getting_started
 
