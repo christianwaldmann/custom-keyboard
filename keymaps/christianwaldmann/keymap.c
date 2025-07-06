@@ -11,6 +11,51 @@ enum layers {
 };
 
 
+// Define custom keycodes starting at SAFE_RANGE
+enum custom_keycodes {
+    TO1_RALT = SAFE_RANGE,
+    TO2_RALT,
+    TO3_RALT,
+};
+
+
+// Timer and hold flag
+static uint16_t hold_timer = 0;
+static bool is_held = false;
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case TO1_RALT:
+        case TO2_RALT:
+        case TO3_RALT:
+            if (record->event.pressed) {
+                hold_timer = timer_read();
+                is_held = false;
+            } else {
+                if (is_held) {
+                    unregister_code(KC_RALT);
+                } else {
+                    switch (keycode) {
+                        case TO1_RALT: layer_move(1); break;
+                        case TO2_RALT: layer_move(2); break;
+                        case TO3_RALT: layer_move(3); break;
+                    }
+                }
+            }
+            return false; // Skip normal handling
+    }
+    return true;
+}
+
+// Let RALT get registered if key is held
+void matrix_scan_user(void) {
+    if (!is_held && timer_elapsed(hold_timer) > TAPPING_TERM) {
+        is_held = true;
+        register_code(KC_RALT);
+    }
+}
+
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_BASE] = LAYOUT_split_3x5_2(
@@ -18,7 +63,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_Q,    KC_W,    KC_F,    KC_P,    KC_B,           KC_J,    KC_L,    KC_U,    KC_Y,    KC_QUOT,
         KC_A,    KC_R,    KC_S,    KC_T,    KC_G,           KC_M,    KC_N,    KC_E,    KC_I,    KC_O,
         KC_Z,    KC_X,    KC_C,    KC_D,    KC_V,           KC_K,    KC_H,    KC_COMM, KC_DOT,  KC_SLSH,
-                 KC_LSFT,          LT(_LEFT,KC_SPC),                 LT(_RIGHT,KC_BSPC), TO(_FIRST)
+                 KC_LSFT,          LT(_LEFT,KC_SPC),                 LT(_RIGHT,KC_BSPC), TO1_RALT
         // ----------------------------------------------------------------------------------------------
     ),
 
@@ -27,7 +72,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_NO,   KC_NO,   KC_PGUP, KC_NO,   KC_NO,          KC_TRNS,    KC_COPY, KC_PSTE, KC_CUT,  KC_NO,
         KC_LEFT, KC_UP,   KC_DOWN, KC_RGHT, KC_NO,          KC_TRNS,    KC_RALT, KC_RGUI, KC_RCTL, KC_RSFT,
         KC_NO,   KC_HOME, KC_PGDN, KC_END,  KC_NO,          KC_TRNS,    KC_UNDO, KC_AGIN, KC_FIND, KC_NO,
-                 TO(_BASE),        KC_TRNS,                             KC_TRNS,          TO(_SECOND)
+                 TO(_BASE),        KC_TRNS,                             KC_TRNS,          TO2_RALT
         // ----------------------------------------------------------------------------------------------
     ),
 
@@ -36,7 +81,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_NO,   KC_NO,   KC_NO,   KC_MUTE, KC_VOLU,        KC_BRIU,  KC_BTN1, KC_BTN3, KC_BTN2, KC_NO,
         KC_LSFT, KC_LCTL, KC_LGUI, KC_LALT, KC_VOLD,        KC_BRID,  KC_MS_L, KC_MS_D, KC_MS_U, KC_MS_R,
         KC_ACL0, KC_BTN2, KC_BTN3, KC_BTN1, KC_WBAK,        KC_WFWD,  KC_WH_L, KC_WH_D, KC_WH_U, KC_WH_R,
-                 TO(_BASE),        KC_BTN1,                           KC_BTN2,          TO(_THIRD)
+                 TO(_BASE),        KC_BTN1,                           KC_BTN2,          TO3_RALT
         // ----------------------------------------------------------------------------------------------
     ),
 
