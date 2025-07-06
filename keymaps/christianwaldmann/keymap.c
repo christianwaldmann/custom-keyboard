@@ -11,49 +11,19 @@ enum layers {
 };
 
 
-// Define custom keycodes starting at SAFE_RANGE
+// Custom keys so I can write german "Umlaute" with US international layout
+// -> sends RALT when holding the switch-layer-up key
+//
+// mostly needed for:
+// ä -> RALT + q
+// ö -> RALT + p
+// ü -> RALT + y
+// ß -> RALT + s
 enum custom_keycodes {
     TO1_RALT = SAFE_RANGE,
     TO2_RALT,
     TO3_RALT,
 };
-
-
-// Timer and hold flag
-static uint16_t hold_timer = 0;
-static bool is_held = false;
-
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case TO1_RALT:
-        case TO2_RALT:
-        case TO3_RALT:
-            if (record->event.pressed) {
-                hold_timer = timer_read();
-                is_held = false;
-            } else {
-                if (is_held) {
-                    unregister_code(KC_RALT);
-                } else {
-                    switch (keycode) {
-                        case TO1_RALT: layer_move(1); break;
-                        case TO2_RALT: layer_move(2); break;
-                        case TO3_RALT: layer_move(3); break;
-                    }
-                }
-            }
-            return false; // Skip normal handling
-    }
-    return true;
-}
-
-// Let RALT get registered if key is held
-void matrix_scan_user(void) {
-    if (!is_held && timer_elapsed(hold_timer) > TAPPING_TERM) {
-        is_held = true;
-        register_code(KC_RALT);
-    }
-}
 
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -113,3 +83,57 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     )
 };
 
+
+// ----- Logic for sending RALT when holding the switch-layer-up keys
+typedef struct {
+    uint16_t timer;
+    bool is_held;
+    bool is_pressed;
+} hold_key_state_t;
+
+static hold_key_state_t to1 = {0, false, false};
+static hold_key_state_t to2 = {0, false, false};
+static hold_key_state_t to3 = {0, false, false};
+
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    hold_key_state_t *state = NULL;
+
+    switch (keycode) {
+        case TO1_RALT: state = &to1; break;
+        case TO2_RALT: state = &to2; break;
+        case TO3_RALT: state = &to3; break;
+        default: return true;
+    }
+
+    if (record->event.pressed) {
+        state->timer = timer_read();
+        state->is_held = false;
+        state->is_pressed = true;
+    } else {
+        if (state->is_held) {
+            unregister_code(KC_RALT);
+        } else {
+            switch (keycode) {
+                case TO1_RALT: layer_move(1); break;
+                case TO2_RALT: layer_move(2); break;
+                case TO3_RALT: layer_move(3); break;
+            }
+        }
+        state->is_pressed = false;
+    }
+
+    return false; // Skip default behavior
+}
+
+
+void matrix_scan_user(void) {
+    hold_key_state_t *states[] = { &to1, &to2, &to3 };
+    for (int i = 0; i < 3; i++) {
+        hold_key_state_t *state = states[i];
+        if (state->is_pressed && !state->is_held && timer_elapsed(state->timer) > TAPPING_TERM) {
+            state->is_held = true;
+            register_code(KC_RALT);
+        }
+    }
+}
