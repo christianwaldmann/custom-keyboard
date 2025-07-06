@@ -137,3 +137,14 @@ void matrix_scan_user(void) {
         }
     }
 }
+
+
+uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case TO1_RALT:
+        case TO2_RALT:
+        case TO3_RALT:
+            return 80;
+    }
+    return TAPPING_TERM;
+}
