@@ -5,7 +5,6 @@ HERE=$(dirname "$0")
 cd "${HERE}/.."
 
 # Move keymap to expected location
-rm -r ~/qmk_firmware/keyboards/ferris/keymaps/christianwaldmann
 cp -r ./keymaps/christianwaldmann ~/qmk_firmware/keyboards/ferris/keymaps
 
 # Compile
